@@ -48,12 +48,12 @@
 #endif
 
 #ifndef INCL_QT_QAPPLICATION
-#include <qapplication.h>
+#include <QtGui/QApplication>
 #define INCL_QT_QAPPLICATION
 #endif
 
 #ifndef INCL_QT_QFILEINFO
-#include <qfileinfo.h>
+#include <QtCore/QFileInfo>
 #define INCL_QT_QFILEINFO
 #endif
 
@@ -71,10 +71,11 @@
  * FORWARD DECLARATIONS
  *============================================================================*/
 
-class QSocketNotifier;
+class QProcess;
 class QMessageBox;
 class QSplitter;
 class QLabel;
+class QAction;
 
 XX_NAMESPACE_BEGIN
 
@@ -162,7 +163,7 @@ public:
    QRect getMainWindowGeometry() const;
 
    // Returns a reference on the view popup menu.
-   QkPopupMenu* getViewPopup( const XxLine& line ) const;
+   QkMenu* getViewPopup( const int no, const XxLine& line ) const;
 
    // Returns the return value to send back to caller.
    int getReturnValue() const;
@@ -187,12 +188,12 @@ public slots:
 
    // Redraws the text widgets.
    void updateWidgets();
+   // Have the merged panes recompute their merged line indexes, and adjust their
+   // scrollbars, then normally update widgets.
+   void updateWidgetsForDiffs();
 
    // On a number of line change in diffs.
    void onNbLinesChanged();
-
-   // This gets called in the main thread when the edit is done.
-   void editDone();
 
    // Most menu items.
    // <group>
@@ -204,6 +205,9 @@ public slots:
    void saveAsRight();
    void saveAsMerged();
    void saveAs();
+   void generatePatchFromLeft();
+   void generatePatchFromMiddle();
+   void generatePatchFromRight();
    void saveSelectedOnly();
    void editLeft();
    void editMiddle();
@@ -365,16 +369,15 @@ private:
    // 'noCancel' disables the cancel button.
    //
    // Returns true if successfully saved, false if cancelled.
-   bool saveToFile(
+   bool saveMergedToFile(
       const QString& filename,
       const bool     ask,
       const bool     noCancel = false,
       const bool     overwrite = false
    );
 
-   // Edits the said file, and add signal handler to catch children exit, and
-   // notify.
-   void editFile( const QString& filename );
+   // Edits the said file.
+   void editFile( const QString& filename, const int bufIdx );
 
    // Reopen file at no and rebuild diffs and update and all.
    void openFile( const XxFno no );
@@ -433,11 +436,6 @@ private:
    // SIGCHLD handler for editor.
    static void handlerSIGCHLD( int );
 
-   /*----- static data members -----*/
-
-   static int              _sockfd;
-   static QSocketNotifier* _socketNotifier;
-
    /*----- data members -----*/
 
    // UI widgets.
@@ -451,12 +449,12 @@ private:
    XxMergedFrame*          _paneMergedView;
    XxMergedWindow*         _popupMergedView;
    XxCentralFrame*         _central;
-   QkPopupMenu*            _viewPopup;
-   QkPopupMenu*            _optionsMenu;
-   QkPopupMenu*            _displayMenu;
-   QkPopupMenu*            _hordiffMenu;
-   QkPopupMenu*            _windowsMenu;
-   int                     _menuids[ MAX_MENUIDS ];
+   QkMenu*                 _viewPopup[4];
+   QkMenu*                 _optionsMenu;
+   QkMenu*                 _displayMenu;
+   QkMenu*                 _hordiffMenu;
+   QkMenu*                 _windowsMenu;
+   QAction*                _menuactions[ MAX_MENUIDS ];
    QWidget*                _overviewArea;
    QLabel*                 _remUnselView;
    XxOverview*             _overview;
@@ -473,6 +471,7 @@ private:
    std::auto_ptr<XxBuffer> _files[3];
    std::auto_ptr<XxDiffs>  _diffs;
    bool                    _filesAreDirectories;
+   QProcess*               _editProc[3];
 
    // True if there is even a single byte of difference between the files.
    bool                    _isThereAnyDifference;

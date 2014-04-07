@@ -1,8 +1,27 @@
+.. -*- coding: utf-8 -*-
+
 ====================================================================
   xxdiff: Graphical File And Directories Comparator And Merge Tool
 ====================================================================
 
 .. contents:: Table of Contents
+..
+    1  Description
+      1.1  Features
+        1.1.1  Unicode and Inline Editing
+    2  Documentation
+      2.1  Screenshots
+    3  Download
+      3.1  Tools
+      3.2  Packages
+    4  Reporting Bugs
+    5  Installation
+      5.1  Dependencies
+      5.2  Portability
+    6  External Links
+    7  Copyright and License
+    8  Author
+
 
 Description
 ===========
@@ -85,13 +104,51 @@ Screenshots
 Download
 ========
 
-* `Releases Download <http://sourceforge.net/project/showfiles.php?group_id=2198>`_
-  
-* `Alternate Location and Snapshots </downloads/xxdiff>`_
+* Source code can be found the public Mercurial repository, here:
 
-* A Windows build (with some minor bugs) can be found `here
-  <http://xxdiff.sourceforge.net/download/2.9/windows>`_.  No support offered
-  though.
+     http://hg.furius.ca/public/xxdiff/
+
+  `Click here for download instructions. </web-furius/downloading.html>`_
+
+* `Releases Download <http://sourceforge.net/project/showfiles.php?group_id=2198>`_
+
+* A complete Qt4 port (which works on the Mac) has been done by
+  Alexandre Feblot (alexandre dot feblot at gmail dot com). This forms
+  the basis for versions 4.x of xxdiff as of November 2010. Some notes
+  about the Mac OS X build:
+
+    On OSX, a Qt bug
+    (http://bugreports.qt.nokia.com/browse/QTBUG-9271) affects
+    rendering performance. As a workaround you can use the much faster
+    "raster" graphics engine by either
+
+    - using the ``--graphicssystem`` raster option
+    - defining this environment variable in your terminal::
+
+         QT_GRAPHICSSYSTEM=raster
+
+    This engine has a couple of drawbacks (it will not refresh the
+    display during window resizing, and will dump warning lines when
+    opening native OSX dialogs like colors chooser or file selection
+    dialogs), but it's worth coping with them anyway.
+
+
+* A recent Mac OS X binary build is available for download here:
+
+    http://furius.ca/downloads/xxdiff/releases/macosx/
+
+
+* An recent Windows 7 port of version 4.0 has been done by Rene J.V. Bertin
+  (it's ifdef'ed).
+
+
+* An old Windows build for 2.9 (with some minor bugs) and based on the
+  qt3 version can be found here:
+
+    http://furius.ca/downloads/xxdiff/releases/windows/
+
+  No support is offered though. Someone should probably port the newer
+  qt4 code to Windows though, that would be worthwhile.
 
 
 Tools
@@ -106,7 +163,7 @@ is now distributed with xxdiff, in an ``xxdiff`` Python package, which you can
 leverage to build your own file transformation scripts around xxdiff.
 
 See the document `Helper Scripts for xxdiff <doc/xxdiff-scripts.html>`_ for full
-details.  
+details.
 
 The scripts are available in the xxdiff distribution.  To install them and the
 accompanying Python package, use the standard distutils procedure::
@@ -133,6 +190,9 @@ the relevant pages.  The author does not publish binaries anymore.
 
 - `Linux / Mandrake package (2) <http://www.roberto.foglietta.name/pub/xxdiff>`_
   (maintained by Roberto A. Foglietta)
+
+- `Linux / Fedore Core (1) <http://timeoff.wsisiz.edu.pl/rpms.html#xxdiff>`_
+  (maintained by Marcin Zajączkowski)
 
 - `Linux / Gentoo port <http://packages.gentoo.org/ebuilds/?xxdiff-3.1>`_
   (in the dev-utils category)
@@ -165,19 +225,19 @@ Dependencies
 
 Build dependencies are:
 
-- Qt-3.2 or higher
+- Qt-4.5 or higher
 - a C++ compiler, flex and yacc
 
 Runtime dependencies are:
 
-- Qt-3.2 or higher
+- Qt-4.5 or higher
 
 
 Portability
 -----------
 
 xxdiff is known to build and work on a great majority of UNIX platforms where Qt
-works.  It has also been ported it to Mac OSX.
+works, including Mac OS X.
 
 
 External Links
@@ -216,3 +276,4 @@ Martin Blais <blais@furius.ca>
    :width: 88
    :height: 31
    :alt: SourceForge Logo
+

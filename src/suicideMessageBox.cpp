@@ -44,14 +44,14 @@ XxSuicideMessageBox::XxSuicideMessageBox(
    const QString& text, 
    Icon           icon 
 ) :
-   QMessageBox( caption, text, icon, 1, 0, 0, parent, 0, false )
-{}
-
-//------------------------------------------------------------------------------
-//
-void XxSuicideMessageBox::done( int /*r*/ )
+   QMessageBox( icon, caption, text, QMessageBox::Close, parent )
 {
-   delete this;
+   setModal( false );
+   setAttribute( Qt::WA_DeleteOnClose );
+#ifdef Q_OS_MAC
+   setWindowFlags( windowFlags() | Qt::WindowStaysOnTopHint );
+#endif
+   show();
 }
 
 XX_NAMESPACE_END
