@@ -117,7 +117,7 @@ irix-n32:QMAKE_CFLAGS_RELEASE += -OPT:Olimit=4000
 macx {
    # Icon used to the application bundle
    ICON = xxdiff.icns
-   
+
    # Special targets to quickly deploy a standalone mac package (just
    # containing the application) in a DMG image. Call it with "make deploy"
 
@@ -125,7 +125,7 @@ macx {
 
    # Copy all required frameworks (libs) in the bundle, and remove i386 part of libs (only keep x86_64)
    macdeployqt.target = $$BUNDLE/Contents/Resources/qt.conf
-   macdeployqt.commands = macdeployqt $$BUNDLE; for l in `find $$BUNDLE -type f -name '*.dylib'; find $$BUNDLE/Contents/Frameworks -type f -name 'Qt*'`; do lipo \$\$l -thin x86_64 -output \$\$l; done
+   macdeployqt.commands = macdeployqt $$BUNDLE; for l in `find $$BUNDLE -type f -name '*.dylib'; find $$BUNDLE/Contents/Frameworks -type f -name 'Qt*'`; do if [ \$\$(lipo \$\$l -info | grep -c 'Non-fat') != 1 ]; then lipo \$\$l -thin x86_64 -output \$\$l; fi; done
    macdeployqt.depends = $$BUNDLE
 
    # Create a dmg package
@@ -135,10 +135,20 @@ macx {
    dmg.commands = @hdiutil create -ov -fs HFS+ -srcfolder $$BUNDLE -volname $$quote("xxdiff\\ $$VER") $$DMG
    dmg.depends = $$macdeployqt.target $(TARGET)
 
+   # Crappy crap to generate and use a specific bison source file that is compatible with bison 2.3 (the default on OSX)
+   bison23lnk.target = resParser_yacc.h
+   bison23lnk.commands = rm -f resParser_yacc.h resParser_yacc.cpp; ln -s resParser_bison23_yacc.cpp resParser_yacc.cpp; ln -s resParser_bison23_yacc.h resParser_yacc.h
+   bison23lnk.depends = bison23src resParser_bison23_yacc.h resParser_bison23.y
+   bison23src.target = resParser_bison23.y
+   bison23src.commands = perl -pe \'s/define api.pure/pure-parser/\' resParser.y > resParser_bison23.y
+   bison23src.depends = 
+   YACCSOURCES = resParser_bison23.y
+   QMAKE_YACCFLAGS_MANGLE = -p resParser -b resParser
+
    # "public" rule
    deploy.depends = $$dmg.target
 
-   QMAKE_EXTRA_TARGETS += macdeployqt dmg deploy
+   QMAKE_EXTRA_TARGETS += macdeployqt dmg deploy bison23src bison23lnk
    QMAKE_CXXFLAGS -= -O2
    QMAKE_CXXFLAGS += -mdynamic-no-pic -O3 -ftracer -msse2 -msse3 -mssse3 -ftree-vectorize
 }
@@ -273,4 +283,4 @@ FORMS = \
 # 	$$DIFFUTILS_DIR/diff.o \
 # 	$$DIFFUTILS_DIR/diff3.o
 
-# SOURCES += diffutils.cpp 
+# SOURCES += diffutils.cpp
