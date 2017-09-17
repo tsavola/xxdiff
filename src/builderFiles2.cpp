@@ -31,11 +31,11 @@
 #include <diffutils.h>
 #include <buffer.h>
 
-#include <QtCore/QString>
-#include <QtCore/QByteArray>
-#include <QtCore/QTextStream>
-#include <QtCore/QFile>
-#include <QtCore/QProcess>
+#include <QString>
+#include <QByteArray>
+#include <QTextStream>
+#include <QFile>
+#include <QProcess>
 
 #include <stdexcept>
 #include <stdio.h>
@@ -86,7 +86,7 @@ bool parseDiffLine(
     * this code taken from "ediff.c" by David MacKenzie, a published,
     * uncopyrighted program to translate diff output into plain English
     */
-   QByteArray lineBa = line.toLatin1();
+   QByteArray lineBa = line.toLocal8Bit();
    const char* buf = lineBa.constData();
 
    bool error = true;
@@ -221,7 +221,9 @@ XX_NAMESPACE_BEGIN
 XxBuilderFiles2::XxBuilderFiles2( bool useInternalDiff ) :
    XxBuilder(),
    _useInternalDiff( useInternalDiff )
-{}
+{
+   (void)_useInternalDiff; // suppress "unused" warning
+}
 
 //------------------------------------------------------------------------------
 //
@@ -306,7 +308,7 @@ std::auto_ptr<XxDiffs> XxBuilderFiles2::process(
 
       switch ( type ) {
          case XxLine::INSERT_1: {
-            XX_LOCAL_TRACE( XxLine::mapToString( type ).toLatin1().constData() );
+            XX_LOCAL_TRACE( XxLine::mapToString( type ).toLocal8Bit().constData() );
             XX_LOCAL_TRACE( "Output: f1n1=" << f1n1 << "  f1n2=" << f1n2 <<
                             "  f2n1=" << f2n1 << "  f2n2=" << f2n2 );
 
@@ -327,7 +329,7 @@ std::auto_ptr<XxDiffs> XxBuilderFiles2::process(
          } break;
 
          case XxLine::INSERT_2: {
-            XX_LOCAL_TRACE( XxLine::mapToString( type ).toLatin1().constData() );
+            XX_LOCAL_TRACE( XxLine::mapToString( type ).toLocal8Bit().constData() );
             XX_LOCAL_TRACE( "Output: f1n1=" << f1n1 << "  f1n2=" << f1n2 <<
                             "  f2n1=" << f2n1 << "  f2n2=" << f2n2 );
 
@@ -348,7 +350,7 @@ std::auto_ptr<XxDiffs> XxBuilderFiles2::process(
          } break;
 
          case XxLine::DIFF_ALL: {
-            XX_LOCAL_TRACE( XxLine::mapToString( type ).toLatin1().constData() );
+            XX_LOCAL_TRACE( XxLine::mapToString( type ).toLocal8Bit().constData() );
             XX_LOCAL_TRACE( "Output: f1n1=" << f1n1 << "  f1n2=" << f1n2 <<
                             "  f2n1=" << f2n1 << "  f2n2=" << f2n2 );
 
@@ -381,7 +383,7 @@ std::auto_ptr<XxDiffs> XxBuilderFiles2::process(
          } break;
 
          case XxLine::SAME: {
-            XX_LOCAL_TRACE( XxLine::mapToString( type ).toLatin1().constData() );
+            XX_LOCAL_TRACE( XxLine::mapToString( type ).toLocal8Bit().constData() );
          } break;
 
          /* Used to ignore a line */

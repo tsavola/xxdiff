@@ -30,11 +30,11 @@
 #include <util.h>
 #include <buffer.h>
 
-#include <QtCore/QString>
-#include <QtCore/QByteArray>
-#include <QtCore/QTextStream>
-#include <QtCore/QFile>
-#include <QtCore/QProcess>
+#include <QString>
+#include <QByteArray>
+#include <QTextStream>
+#include <QFile>
+#include <QProcess>
 
 #include <stdexcept>
 #include <stdio.h>
@@ -209,7 +209,7 @@ bool parseDiffLine(
       ); \
   }
 
-   QByteArray lineBa = line.toLatin1();
+   QByteArray lineBa = line.toLocal8Bit();
    const char* buf = lineBa.constData();
 
    XX_LOCAL_TRACE( "" );
@@ -485,7 +485,7 @@ std::auto_ptr<XxDiffs> XxBuilderFiles3::process(
 
 #ifdef XX_DEBUG
       XX_LOCAL_TRACE( "ParseDiffLine results: " );
-      XX_LOCAL_TRACE( XxLine::mapToString( type ).toLatin1().constData() );
+      XX_LOCAL_TRACE( XxLine::mapToString( type ).toLocal8Bit().constData() );
       XX_LOCAL_TRACE( "  sno=" << sno );
       XX_LOCAL_TRACE( "  f1n1=" << f1n1 << "  f1n2=" << f1n2 );
       XX_LOCAL_TRACE( "  f2n1=" << f2n1 << "  f2n2=" << f2n2 );

@@ -51,17 +51,17 @@
 #endif
 
 #ifndef INCL_QT_QSTRING
-#include <QtCore/QString>
+#include <QString>
 #define INCL_QT_QSTRING
 #endif
 
 #ifndef INCL_QT_QSTRINGLIST
-#include <QtCore/QStringList>
+#include <QStringList>
 #define INCL_QT_QSTRINGLIST
 #endif
 
 #ifndef INCL_QT_QFILEINFO
-#include <QtCore/QFileInfo>
+#include <QFileInfo>
 #define INCL_QT_QFILEINFO
 #endif
 
@@ -95,15 +95,15 @@ public:
    // Passive constructor, will not build buffer contents.
    XxBuffer(
       const bool     passiveDummy, // ignored
-      const QString& filename, 
+      const QString& filename,
       const QString& displayFilename,
       const char     newlineChar = '\n'
    );
 
    // Constructor.  This will load the file in memory and index the beginnings
    // of each line.
-   XxBuffer( 
-      const QString&   filename, 
+   XxBuffer(
+      const QString&   filename,
       const QString&   displayFilename,
       const QFileInfo& fileInfo,
       const bool       temporary = false,
@@ -155,9 +155,9 @@ public:
    // Returns a pointer to the beginning of a line and its length.  Important
    // note: in accordance to how diff reports line numbers, files start at line
    // 1, not line 0.  You cannot call this method for line 0.
-   const char* getTextLine( 
+   const char* getTextLine(
       const XxFln lineno,
-      uint&       length 
+      uint&       length
    ) const;
 
    // Renders text into modified text ready for display and returns a pointer to
@@ -168,12 +168,12 @@ public:
    // If the hordiffs is not null, it is expecting an array ende by a -1
    // element.  This array will be modified in place.
    // <group>
-   
+
    // Realizes tab expansion into spaces, as well as carriage returns.
-   const char* renderTextWithTabs( 
+   const char* renderTextWithTabs(
       const char* lineText,
-      const uint  length, 
-      const uint  tabWidth, 
+      const uint  length,
+      const uint  tabWidth,
       const uint  hideCR,
       int&        rlength,
       int*        hordiffs
@@ -184,7 +184,7 @@ public:
    uint getNbDigits() const;
 
    // Renders the line number.  See renderTextWithTabs.
-   const QString& renderLineNumber( 
+   const QString& renderLineNumber(
       const XxFln    lineNumber,
       const QString& format
    );
@@ -268,16 +268,11 @@ private:
 
 #define XX_ENABLED_BUFFER_LINE_LENGTHS
 #ifdef XX_ENABLED_BUFFER_LINE_LENGTHS
-   // Important note: due to the use of the short datatype to record line
-   // lengths, xxdiff is limited to lines of length up to 64k characters. We
-   // consider this reasonable for all purposes. However, this could be easily
-   // changed to int below if necessary.
-   //
    // We had to introduce an explicit vector of lengths because since the
    // unmerge feature was introduced, we're sharing the very text buffer that
    // the multiple buffers use we cannot anymore rely on buffer lines appearing
    // next to each other in the data array.
-   std::vector<short> _lengths;
+   std::vector<unsigned int> _lengths;
 #endif
 
    // Indirection index for reindexed files. This array contains the line

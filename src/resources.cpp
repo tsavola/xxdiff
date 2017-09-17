@@ -31,11 +31,11 @@
 #include <exceptions.h>
 #include <util.h>
 
-#include <QtGui/QColor>
-#include <QtCore/QObject>
-#include <QtGui/QApplication> // to get desktop
-#include <QtCore/QRegExp>
-#include <QtGui/QStyleFactory>
+#include <QColor>
+#include <QObject>
+#include <QApplication> // to get desktop
+#include <QRegExp>
+#include <QStyleFactory>
 
 #include <iostream>
 #include <string.h> // ::strcmp
@@ -98,9 +98,11 @@ void XxResources::initializeOriginalXdiff()
    _preferredGeometry = _defaultGeometry;
    _styleKey =  // Default style.
 #ifdef Q_OS_MAC
-      "Macintosh (aqua)";
+      "Macintosh";
+#elif defined(Q_OS_WIN)
+      "Windows";
 #else
-      "Cleanlooks";
+      "";
 #endif
    _maximize = false;
 
@@ -117,6 +119,8 @@ void XxResources::initializeOriginalXdiff()
    _accelerators[ ACCEL_EXIT_MERGED ] = Qt::Key_M;
    _accelerators[ ACCEL_EXIT_REJECT ] = Qt::Key_R;
                   
+   _accelerators[ ACCEL_SAVE_AS_LEFT ] = Qt::CTRL | Qt::SHIFT | Qt::Key_L;
+   _accelerators[ ACCEL_SAVE_AS_RIGHT ] = Qt::CTRL | Qt::SHIFT | Qt::Key_R;
    _accelerators[ ACCEL_SAVE_AS_MERGED ] = Qt::CTRL | Qt::Key_M;
 
    _accelerators[ ACCEL_SEARCH ] = Qt::CTRL | Qt::Key_S;
@@ -316,7 +320,7 @@ void XxResources::initializeOriginalXdiff()
    // "cmp -s" barfs on directories.
    const char* editor = getenv( "EDITOR" );
    if ( editor != 0 ) {
-      _commands[ CMD_EDIT ] = QString::fromLatin1( editor );
+      _commands[ CMD_EDIT ] = QString::fromLocal8Bit( editor );
    }
    else {
       _commands[ CMD_EDIT ] = "xterm -e vi";

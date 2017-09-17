@@ -32,9 +32,9 @@
 #include <resParser.h>
 
 #include <kdeSupport.h>
-#include <QtGui/QPixmap>
-#include <QtCore/QTextStream>
-#include <QtGui/QVBoxLayout>
+#include <QPixmap>
+#include <QTextStream>
+#include <QVBoxLayout>
 
 namespace XX_NAMESPACE_PREFIX { namespace Manual {
 #if !defined(WINDOWS) && !defined(__CYGWIN__)
@@ -44,15 +44,15 @@ char text[]="<h1>xxdiff documentation</h1><p>Not available under Windows.</p>";
 #endif
 }}
 
-#include <QtGui/QDialog>
-#include <QtGui/QMessageBox>
-#include <QtGui/QLayout>
-#include <QtGui/QLabel>
-#include <QtGui/QPushButton>
-#include <QtGui/QPalette>
-#include <QtGui/QTextBrowser>
-#include <QtCore/QByteArray>
-#include <QtGui/QLineEdit>
+#include <QDialog>
+#include <QMessageBox>
+#include <QLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QPalette>
+#include <QTextBrowser>
+#include <QByteArray>
+#include <QLineEdit>
 
 #include <iostream>
 #include <stdio.h>
@@ -599,7 +599,7 @@ QDialog* XxHelp::getManPageDialog( QWidget* parent )
 //
 QString XxHelp::xmlize( const QString& in )
 {
-   QByteArray inBa =  in.toLatin1();
+   QByteArray inBa =  in.toLocal8Bit();
    const char* inc = inBa.constData();
    QString out;
    for ( int ii = 0; ii < in.length(); ++ii ) {

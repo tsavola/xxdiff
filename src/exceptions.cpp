@@ -28,7 +28,7 @@
 #include <cmdline.h>
 #include <help.h>
 
-#include <QtCore/QTextStream>
+#include <QTextStream>
 
 #include <iostream>
 #include <string.h> // strerror
@@ -56,7 +56,7 @@ void issueWarning( const QString& str )
 
 //------------------------------------------------------------------------------
 //
-XxError::XxError( 
+XxError::XxError(
    XX_EXC_PARAMS_DECL(file,line),
    const QString& msg
 )
@@ -86,7 +86,7 @@ const QString& XxError::getMsg() const XX_THROW_NOTHING
 
 //------------------------------------------------------------------------------
 //
-XxUsageError::XxUsageError( 
+XxUsageError::XxUsageError(
    XX_EXC_PARAMS_DECL(file,line),
    const QString& msg,
    int            helpMask
@@ -121,9 +121,9 @@ XxUsageError::XxUsageError(
 
 //------------------------------------------------------------------------------
 //
-XxIoError::XxIoError( 
+XxIoError::XxIoError(
    XX_EXC_PARAMS_DECL(file,line),
-   const QString& msg 
+   const QString& msg
 ) :
    XxError( file, line, msg ),
    std::runtime_error( strerror( errno ) )
@@ -139,7 +139,7 @@ XxIoError::XxIoError(
 
 //------------------------------------------------------------------------------
 //
-XxInternalError::XxInternalError( 
+XxInternalError::XxInternalError(
    XX_EXC_PARAMS_DECL(file,line)
 ) :
    XxError( file, line ),
@@ -150,7 +150,7 @@ XxInternalError::XxInternalError(
    oss << "Internal error." << endl << endl;
    oss << "There has been an internal error within xxdiff." << endl
        << "To report bugs, please use the sourceforge bug tracker" << endl
-       << "at http://sourceforge.net/tracker/?group_id=2198" << endl
+       << "at https://sourceforge.net/p/xxdiff/bugs/" << endl
        << "and log the above information above and if possible," << endl
        << "the files that caused the error, and as much detail as" << endl
        << "you can to reproduce the error.";
@@ -161,9 +161,8 @@ XxInternalError::XxInternalError(
 // I'll know what's going on at least when developing in debug mode.
 #ifdef XX_DEBUG
    std::cerr << "Throwing exception:" << std::endl;
-   std::cerr << _msg.toLatin1().constData() << std::endl;
+   std::cerr << _msg.toLocal8Bit().constData() << std::endl;
 #endif
 }
 
 XX_NAMESPACE_END
-

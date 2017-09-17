@@ -28,12 +28,12 @@
 #include <exceptions.h>
 #include <main.h>
 
-#include <QtCore/QString>
-#include <QtCore/QByteArray>
-#include <QtCore/QTextStream>
-#include <QtCore/QFileInfo>
-#include <QtCore/QRegExp>
-#include <QtCore/QDateTime>
+#include <QString>
+#include <QByteArray>
+#include <QTextStream>
+#include <QFileInfo>
+#include <QRegExp>
+#include <QDateTime>
 
 #include <iostream>
 #include <sys/types.h>
@@ -67,50 +67,6 @@
  *============================================================================*/
 
 namespace {
-
-bool installSigChldHandler(
-   void (*sigChldHandler)(int)
-)
-{
-// Disabled crud that doesn't work (it works only the first time, the second
-// time around the handler is called immediately upon setting up the handler).
-   (void)sigChldHandler;
-#ifdef DISABLED_ENABLED /* always false */
-   XX_ASSERT( sigChldHandler != 0 );
-
-   XX_TRACE( "Installing SIGCHLD handler." );
-
-   // sigset_t spm_o;
-   // sigprocmask( SIG_NOP, 0, &spm_o );
-   // XX_TRACE( "is SIGCHLD member=" <<
-   //           sigismember( &spm_o, SIGCHLD ) );
-   // sigemptyset( &spm_o );
-   // sigaddset( &spm_o, SIGCHLD );
-   // sigprocmask( SIG_BLOCK, &spm_o, 0 );
-
-   //
-   // Register a SIGCHLD handler.
-   //
-   // Note: under IRIX (untested with others), SA_NOCLDWAIT will not
-   // allow a redo diff to work. I don't know why.
-
-   struct sigaction sa;
-   sa.sa_flags = /*SA_SIGINFO | */SA_RESTART |
-      SA_RESETHAND | SA_NOCLDWAIT | SA_NOCLDSTOP;
-   sa.sa_handler = sigChldHandler;
-   sigset_t ss;
-   sigemptyset( &ss );
-   sa.sa_mask = ss;
-   //sa.sa_sigaction = 0; don't clear sa_sigaction for nothing...
-   // sa_handler and sa_sigaction may be sharing an union.
-   if ( ::sigaction( SIGCHLD, &sa, 0 ) != 0 ) {
-      // Ignore error.
-      XX_TRACE( "Error calling sigaction." );
-      return false;
-   }
-#endif
-   return true;
-}
 
 //------------------------------------------------------------------------------
 //
@@ -190,14 +146,14 @@ void formatPrintFunc(
       case 'n': { // - File name
          strcat( pformat, "s" );
          QString tmp;
-         tmp.sprintf( pformat, filename.toLatin1().constData() );
+         tmp.sprintf( pformat, filename.toLocal8Bit().constData() );
          target.append( tmp );
       } break;
 
       case 'N': { // - Quoted File name with dereference if symbolic link
          strcat( pformat, "s" );
          QString tmp;
-         tmp.sprintf( pformat, filename.toLatin1().constData() );
+         tmp.sprintf( pformat, filename.toLocal8Bit().constData() );
          if ( qfi.isSymLink() ) {
             tmp.append( "' -> `" );
             tmp.append( qfi.readLink() );
@@ -235,7 +191,7 @@ void formatPrintFunc(
       case 'U': { // - User name of owner
          strcat( pformat, "s" );
          QString tmp;
-         tmp.sprintf( pformat,qfi.owner().toAscii().constData() );
+         tmp.sprintf( pformat,qfi.owner().toLocal8Bit().constData() );
          target.append( tmp );
       } break;
 
@@ -249,7 +205,7 @@ void formatPrintFunc(
       case 'G': { // - Group name of owner
          strcat( pformat, "s" );
          QString tmp;
-         tmp.sprintf( pformat,qfi.group().toAscii().constData() );
+         tmp.sprintf( pformat,qfi.group().toLocal8Bit().constData() );
          target.append( tmp );
       } break;
 
@@ -280,7 +236,7 @@ void formatPrintFunc(
          // It's not the exact same as stat( 2 ) does, but this is ISO 8601
          // and stat uses some weird syntax of it's own.
          tmp.sprintf( pformat,
-                      qfi.lastRead().toString( DATEFORMAT ).toAscii().constData() );
+                      qfi.lastRead().toString( DATEFORMAT ).toLocal8Bit().constData() );
          target.append( tmp );
       } break;
 
@@ -297,7 +253,7 @@ void formatPrintFunc(
          // It's not the exact same as stat( 2 ) does, but this is ISO 8601
          // and stat uses some weird syntax of it's own.
          tmp.sprintf( pformat,
-                      qfi.lastModified().toString( DATEFORMAT ).toAscii().constData() );
+                      qfi.lastModified().toString( DATEFORMAT ).toLocal8Bit().constData() );
          target.append( tmp );
       } break;
 
@@ -383,7 +339,7 @@ void formatPrintFunc(
          // and stat uses some weird syntax of it's own.
          tmp.sprintf(
             pformat,
-            ( QDateTime::currentDateTime() ).toString( DATEFORMAT ).toAscii().constData()
+            ( QDateTime::currentDateTime() ).toString( DATEFORMAT ).toLocal8Bit().constData()
          );
          target.append( tmp );
       } break;
@@ -403,7 +359,7 @@ void formatPrintFunc(
          // and stat uses some weird syntax of it's own.
          tmp.sprintf(
             pformat,
-            ( QDateTime::currentDateTime() ).toString( DATEFORMAT ).toAscii().constData() );
+            ( QDateTime::currentDateTime() ).toString( DATEFORMAT ).toLocal8Bit().constData() );
          target.append( tmp );
       } break;
 
@@ -448,7 +404,7 @@ int XxUtil::copyFile( const QString& src, const QString& dest )
 {
    QString cmd = QString("cp '") + src + QString("' '") + dest + QString("'");
 
-   FILE* f = popen( cmd.toLatin1().constData(), "r" );
+   FILE* f = popen( cmd.toLocal8Bit().constData(), "r" );
    int r = pclose( f );
    return r;
 }
@@ -458,7 +414,7 @@ int XxUtil::copyFile( const QString& src, const QString& dest )
 int XxUtil::removeFile( const QString& src )
 {
    XX_ASSERT( !src.isEmpty() );
-   return unlink( src.toLatin1().constData() );
+   return unlink( src.toLocal8Bit().constData() );
 }
 
 //------------------------------------------------------------------------------
@@ -540,7 +496,7 @@ bool XxUtil::isAsciiText( const QString& filename )
    int fd, bytes, i;
    char buffer[1024];
 
-   fd = open( filename.toLatin1().constData(), O_RDONLY );
+   fd = open( filename.toLocal8Bit().constData(), O_RDONLY );
    bytes = read( fd, (void *)buffer, 1024 );
    close( fd );
 
@@ -574,7 +530,7 @@ int XxUtil::interruptibleSystem( const QString& command )
       return -1;
    }
    if ( pid == 0 ) {
-      QByteArray commandBa = command.toLatin1();
+      QByteArray commandBa = command.toLocal8Bit();
       char* argv[4];
       argv[0] = const_cast<char*>( "sh" );
       argv[1] = const_cast<char*>( "-c" );
@@ -669,7 +625,7 @@ void XxUtil::splitArgs(
    for ( QStringList::Iterator it = out_args.begin();
          it != out_args.end();
          ++it ) {
-      ofs << (*it).toLatin1().constData() << std::endl;
+      ofs << (*it).toLocal8Bit().constData() << std::endl;
    }
    ofs << " ----------------------------------------" << std::endl;
    ofs.close();
@@ -709,7 +665,7 @@ bool XxUtil::formatFilename(
    //
    // Including anyway for now, because I absolutely don't have time right now.
 
-   char* format = strdup( masterformat.toLatin1().constData() );
+   char* format = strdup( masterformat.toLocal8Bit().constData() );
    char* dest = (char*) malloc( strlen( format ) + 1 );
    char* b = format;
    target = "";
@@ -793,7 +749,7 @@ QString XxUtil::unescapeChars( const QString& format )
 	   break;
        // use at() in case found+1 is past the end of the string
        QChar escapedChar = newFormat.at( found+1 );
-       switch( escapedChar.toAscii() ) {
+       switch( escapedChar.toLatin1() ) {
        case 'n':
 	   newFormat = newFormat.replace( found, 2, QChar( '\n' ) );
 	   break;

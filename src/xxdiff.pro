@@ -29,6 +29,7 @@
 TEMPLATE = app
 CONFIG -= debug
 CONFIG += qt warn_on thread
+QT = widgets gui core
 
 DESTDIR=../bin
 TARGET = xxdiff
@@ -64,6 +65,9 @@ QMAKE_YACC = bison
 QMAKE_YACCFLAGS = -d -o y.tab.c
 QMAKE_YACC_HEADER = y.tab.h
 QMAKE_YACC_SOURCE = y.tab.c
+
+# Don't generate unused functions (warning suppression)
+QMAKE_LEXFLAGS = --noyy_push_state --noyy_pop_state --noyy_top_state
 
 LEXSOURCES = resParser.l
 
@@ -106,6 +110,8 @@ irix-n32:QMAKE_CFLAGS_RELEASE += -OPT:Olimit=4000
 #linux-g++:QMAKE_CXXFLAGS += -fcheck-memory-usage
 #linux-g++:QMAKE_LIBS += -lmpatrol -lbfd -liberty
 
+# auto_ptr deprecated in C++11, removed in C++17
+linux: QMAKE_CXXFLAGS += -std=c++03
 
 #----------------------------------------
 # Max OS X with XFree86 port, macx-g++
@@ -115,12 +121,11 @@ irix-n32:QMAKE_CFLAGS_RELEASE += -OPT:Olimit=4000
 ## macx-g++:QMAKE_CXXFLAGS += -D__GNU_LIBRARY__
 ## macx-g++:QMAKE_CXXFLAGS -= -fno-exceptions
 
-
 #----------------------------------------
 # Max OS X (macx-g++ for command line build)
 
 macx {
-   # Icon used to the application bundle
+   # Icon used for the application bundle
    ICON = xxdiff.icns
 
    # Special targets to quickly deploy a standalone mac package (just
@@ -149,13 +154,20 @@ macx {
    bison23src.depends = 
    YACCSOURCES = resParser_bison23.y
    QMAKE_YACCFLAGS_MANGLE = -p resParser -b resParser
+   resParser_lex_obj.target = resParser_lex.o
+   resParser_lex_obj.depends = bison23lnk
+
+   # "register" deprecated in C++11 but the MacOS flex still uses it in files it generates
+   QMAKE_LEXFLAGS += -Dregister=
 
    # "public" rule
    deploy.depends = $$dmg.target
 
-   QMAKE_EXTRA_TARGETS += macdeployqt dmg deploy bison23src bison23lnk
-   QMAKE_CXXFLAGS -= -O2
-   QMAKE_CXXFLAGS += -mdynamic-no-pic -O3 -ftracer -msse2 -msse3 -mssse3 -ftree-vectorize
+   QMAKE_EXTRA_TARGETS += macdeployqt dmg deploy bison23src bison23lnk resParser_lex_obj
+   QMAKE_CFLAGS_RELEASE   -= -O2
+   QMAKE_CXXFLAGS_RELEASE -= -O2
+   QMAKE_CFLAGS   += -mdynamic-no-pic -O3 -msse2 -msse3 -mssse3 -ftree-vectorize
+   QMAKE_CXXFLAGS += -mdynamic-no-pic -O3 -msse2 -msse3 -mssse3 -ftree-vectorize
 }
 
 #----------------------------------------
@@ -201,6 +213,7 @@ HEADERS = \
 	main.h \
 	overview.h \
 	resParser.h \
+	resParser_lex.h \
 	resources.h \
 	resources.inline.h \
 	accelUtil.h \

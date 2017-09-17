@@ -49,31 +49,31 @@
 #include <central.h>
 #include <borderLabel.h>
 
-#include <QtGui/QMainWindow>
-#include <QtGui/QMenu>
-#include <QtGui/QMenuBar>
-#include <QtGui/QLayout>
-#include <QtGui/QScrollBar>
-#include <QtGui/QLabel>
-#include <QtGui/QStyleFactory>
-#include <QtGui/QFont>
-#include <QtGui/QMessageBox>
-#include <QtGui/QFileDialog>
-#include <QtGui/QShortcut>
-#include <QtGui/QWhatsThis>
-#include <QtGui/QClipboard>
-#include <QtCore/QProcess>
-#include <QtGui/QToolBar>
-#include <QtGui/QAction>
-#include <QtCore/QTextStream>
-#include <QtCore/QFile>
-#include <QtGui/QSplitter>
-#include <QtCore/QRegExp>
-#include <QtGui/QCheckBox>
-#include <QtCore/QDateTime>
-#include <QtGui/QPixmap>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QVBoxLayout>
+#include <QMainWindow>
+#include <QMenu>
+#include <QMenuBar>
+#include <QLayout>
+#include <QScrollBar>
+#include <QLabel>
+#include <QStyleFactory>
+#include <QFont>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QShortcut>
+#include <QWhatsThis>
+#include <QClipboard>
+#include <QProcess>
+#include <QToolBar>
+#include <QAction>
+#include <QTextStream>
+#include <QFile>
+#include <QSplitter>
+#include <QRegExp>
+#include <QCheckBox>
+#include <QDateTime>
+#include <QPixmap>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 
 
 #ifdef XX_KDE
@@ -179,7 +179,7 @@ public:
    XxMainWindow(
       XxApp*      app,
       QWidget*    parent = 0,
-      Qt::WFlags      f = Qt::Window
+      Qt::WindowFlags      f = Qt::Window
    );
 
 
@@ -197,11 +197,13 @@ private:
 XxMainWindow::XxMainWindow(
    XxApp*      app,
    QWidget*    parent,
-   Qt::WFlags      f
+   Qt::WindowFlags      f
 ) :
    QkMainWindow( parent, f ),
    _app( app )
-{}
+{
+   (void)_app; // suppress "unused" warning
+}
 
 }
 
@@ -243,14 +245,14 @@ XxApp::XxApp( int& argc, char** argv, XxCmdline& cmdline ) :
    // Read in the resources and create resources object.
    _resources = buildResources();
 
-// We do not force the style anymore.
-// #ifndef XX_KDE
-//    // By default, if not specified, force SGI style.
-//    if ( !_cmdline._forceStyle ) {
-//       _style = QStyleFactory::create( _resources->getStyleKey() );
-//       setStyle( _style );
-//    }
-// #endif
+#ifndef XX_KDE
+   if ( !_cmdline._forceStyle ) {
+      _style = QStyleFactory::create( _resources->getStyleKey() );
+      if (_style) {
+         setStyle( _style );
+      }
+   }
+#endif
 
 #ifndef XX_KDE
    if ( _cmdline._forceFont == false ) {
@@ -2283,12 +2285,12 @@ bool XxApp::processDiff()
          if ( _resources->getBoolOpt( BOOL_DIRDIFF_RECURSIVE ) ) {
             dirdiff_command = _resources->getCommand(
                CMD_DIFF_DIRECTORIES_REC
-            ).toAscii();
+            ).toLocal8Bit();
          }
          else {
             dirdiff_command = _resources->getCommand(
                CMD_DIFF_DIRECTORIES
-            ).toAscii();
+            ).toLocal8Bit();
          }
          std::auto_ptr<XxDiffs> tmp(
             dirsBuilder->process( dirdiff_command.constData(), *_files[0], *_files[1] )
@@ -3522,7 +3524,7 @@ void XxApp::diffFilesAtCursor()
              QString * tmpTitle = new QString();
              tmpTitle->sprintf( "--title%d=%s",
                                 ii+1,
-                                _cmdline._userFilenames[ii].toLatin1().constData() );
+                                _cmdline._userFilenames[ii].toLocal8Bit().constData() );
              titles[ii] = tmpTitle;
          }
       }
@@ -3547,7 +3549,7 @@ void XxApp::diffFilesAtCursor()
 
    if ( filenames.count() > 0 ) {
       // Spawn a diff.
-      QString command = argv()[0];
+      QString command = arguments()[0];
 
       if ( filenames.count() == 1 ) {
          command += QString(" --single ");
