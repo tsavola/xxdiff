@@ -241,6 +241,7 @@ private:
    // Process the buffer to remove the carriage returns. Do this before
    // indexing!
    void processCarriageReturns();
+   void processUnitSeparator();
 
    // Index the file lines.
    void indexFile();

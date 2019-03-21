@@ -260,6 +260,8 @@ void XxBuffer::loadStream( FILE* fin )
       processCarriageReturns();
    }
 
+   processUnitSeparator();
+
    indexFile();
 }
 
@@ -305,6 +307,8 @@ void XxBuffer::loadFile( const QFileInfo& finfo )
       if ( _hiddenCR ) {
          processCarriageReturns();
       }
+
+      processUnitSeparator();
 
       indexFile();
    }
@@ -398,6 +402,31 @@ void XxBuffer::processCarriageReturns()
    }
 
    _bufferSize = destPtr - _buffer;
+}
+
+//------------------------------------------------------------------------------
+//
+void XxBuffer::processUnitSeparator()
+{
+   // Convert UTF-8 unit separator character to ASCII dot.
+
+   uint dest;
+   uint src;
+
+   for ( dest = 0, src = 0; src < _bufferSize-1; dest++, src++ ) {
+     if ( _buffer[src] == '\xc2' && _buffer[src+1] == '\xb7' ) {
+       _buffer[dest] = '.';
+       src++;
+     } else {
+       _buffer[dest] = _buffer[src];
+     }
+   }
+
+   for ( ; src < _bufferSize; dest++, src++ ) {
+     _buffer[dest] = _buffer[src];
+   }
+
+   _bufferSize = dest;
 }
 
 //------------------------------------------------------------------------------
